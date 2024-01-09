@@ -16,6 +16,9 @@
 # limitations under the License.
 #
 
+default_branch = 'master'
+
+
 import os
 import datetime
 import subprocess 
@@ -185,6 +188,7 @@ def git_log():
                 note = result.group(0)
 
                 note = re.sub(r'\n', '', note)
+                note = re.sub(r' ', '', note)
                 note = '注释: ' + note
 
 
@@ -233,21 +237,24 @@ def git_add_commit_push():
         messagebox.showerror("错误", "提交失败")
         return
     
-    switch = simpledialog.askstring(title='',prompt='输入提交分支(不输入默认master)')
+    switch = simpledialog.askstring(title='',prompt='输入提交分支(不输入默认'+default_branch+')')
     git_remote_url_check()
     if switch  == None:
         return
     if len(switch) == 0:
-        switch = 'master'
+        switch = default_branch
     res = shell("git push origin " + switch)
     output,error = res.communicate()
     text = error.decode()
+    print(text)
     if text.find('new branch') != -1:
         messagebox.showerror("成功", "推送成功")
         return
-    else:
-        messagebox.showerror("错误", "推送失败")
+    if text.find('Everything up-to-date') != -1:
+        messagebox.showwarning("警告", "远程仓库已是最新的")
         return
+    messagebox.showerror("错误", "推送失败")
+    return
     
 
 def git_add_commit():
@@ -270,16 +277,24 @@ def git_add_commit():
 def git_push():
     if git_exist():
         return
-    switch = simpledialog.askstring(title='',prompt='输入提交分支(不输入默认master)')
+    switch = simpledialog.askstring(title='',prompt='输入提交分支(不输入默认'+default_branch+')')
     git_remote_url_check()
     if switch  == None:
         return
     if len(switch) == 0:
-        switch = 'master'
+        switch = default_branch
     res = shell("git push origin " + switch)
-    if shell_error(res) == 1:
-        messagebox.showerror("错误", "推送失败")
+    output,error = res.communicate()
+    text = error.decode()
+    print(text)
+    if text.find('new branch') != -1:
+        messagebox.showerror("成功", "推送成功")
         return
+    if text.find('Everything up-to-date') != -1:
+        messagebox.showwarning("警告", "远程仓库已是最新的")
+        return
+    messagebox.showerror("错误", "推送失败")
+    return
     
 def git_clone():
     url = simpledialog.askstring(title='',prompt='输入克隆地址')
@@ -389,6 +404,7 @@ def start():
         if result:
             note = result.group(0)
             note = re.sub(r'\n', '', note)
+            note = re.sub(r' ', '', note)
             note = '注释: ' + note
 
 
