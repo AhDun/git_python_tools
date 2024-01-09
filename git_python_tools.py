@@ -241,7 +241,8 @@ def git_add_commit_push():
         switch = 'master'
     res = shell("git push origin " + switch)
     output,error = res.communicate()
-    if error.find('new branch') != -1:
+    text = error.decode()
+    if text.find('new branch') != -1:
         messagebox.showerror("错误", "推送失败")
         return
     
