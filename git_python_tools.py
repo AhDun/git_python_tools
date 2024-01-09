@@ -204,7 +204,7 @@ def git_log():
             if len(outputs) < 10:
                 break
 
-    shell_win.insert(END, '\n\n\n所有提交('+str(sum)+'次提交)\n\n' + history,'T2C')
+    shell_win.insert(END, '\n\n\n所有提交('+str(sum)+'次提交)\n\n','T2C')
     shell_win.insert(END, history,'log')
  
     root.update()
