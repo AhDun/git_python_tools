@@ -221,7 +221,7 @@ def git_add_commit_push():
         return
     res = shell("git add .")
     if shell_error(res) == 1:
-        output,error = res.stdout()
+        output,error = res.communicate()
         if error.find("warning") == -1:
             messagebox.showerror("错误", "添加失败")
             return
@@ -240,7 +240,8 @@ def git_add_commit_push():
     if len(switch) == 0:
         switch = 'master'
     res = shell("git push origin " + switch)
-    if shell_error(res) == 1:
+    output,error = res.communicate()
+    if error.find('new branch') != -1:
         messagebox.showerror("错误", "推送失败")
         return
     
@@ -250,7 +251,7 @@ def git_add_commit():
         return
     res = shell("git add .")
     if shell_error(res) == 1:
-        output,error = res.stdout()
+        output,error = res.communicate()
         if error.find("warning") == -1:
             messagebox.showerror("错误", "添加失败")
             return
