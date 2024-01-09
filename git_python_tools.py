@@ -247,7 +247,7 @@ def git_add_commit_push():
     output,error = res.communicate()
     text = error.decode()
     print(text)
-    if text.find('new branch') != -1:
+    if text.find(default_branch + ' ->') != -1:
         messagebox.showerror("成功", "推送成功")
         return
     if text.find('Everything up-to-date') != -1:
@@ -287,7 +287,7 @@ def git_push():
     output,error = res.communicate()
     text = error.decode()
     print(text)
-    if text.find('new branch') != -1:
+    if text.find(default_branch + ' ->') != -1:
         messagebox.showerror("成功", "推送成功")
         return
     if text.find('Everything up-to-date') != -1:
