@@ -204,7 +204,8 @@ def git_log():
             if len(outputs) < 10:
                 break
 
-    shell_win.insert(END, '\n\n\n所有提交('+str(sum)+'次提交)\n\n' + history,'log')
+    shell_win.insert(END, '\n\n\n所有提交('+str(sum)+'次提交)\n\n' + history,'T2C')
+    shell_win.insert(END, history,'log')
  
     root.update()
 
@@ -248,7 +249,7 @@ def git_add_commit_push():
     text = error.decode()
     print(text)
     if text.find(default_branch + ' ->') != -1:
-        messagebox.showerror("成功", "推送成功")
+        messagebox.showinfo("成功", "推送成功")
         return
     if text.find('Everything up-to-date') != -1:
         messagebox.showwarning("警告", "远程仓库已是最新的")
@@ -288,7 +289,7 @@ def git_push():
     text = error.decode()
     print(text)
     if text.find(default_branch + ' ->') != -1:
-        messagebox.showerror("成功", "推送成功")
+        messagebox.showinfo("成功", "推送成功")
         return
     if text.find('Everything up-to-date') != -1:
         messagebox.showwarning("警告", "远程仓库已是最新的")
