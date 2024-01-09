@@ -243,6 +243,9 @@ def git_add_commit_push():
     output,error = res.communicate()
     text = error.decode()
     if text.find('new branch') != -1:
+        messagebox.showerror("成功", "推送成功")
+        return
+    else:
         messagebox.showerror("错误", "推送失败")
         return
     
