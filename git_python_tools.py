@@ -23,6 +23,7 @@ import os
 import datetime
 import subprocess 
 import re
+import sys
 
 logo = '''
       ___                                   ___                                 ___           ___           ___     
@@ -75,9 +76,11 @@ shell_win.tag_config('welcome',foreground="#009000", font=("", 20, ""),justify="
 shell_win.tag_config('log',foreground="#000090", font=("", 15, ""),justify="center")
 
 
-def shell_error(res):
-    output, error = res.communicate()
-    if len(error.decode()) == 0:
+shell_output = str()
+shell_error  = str()
+
+def shell_is_error():
+    if len(shell_error) == 0:
         return 0
     else:
         return 1
@@ -85,20 +88,38 @@ def shell_error(res):
 # def shell_win_get_lines():
 #     index  = shell_win.index("end-1c")
 #     return index.split('.')[0]
-
-def shell_win_insert(res):
-    output, error = res.communicate()
-    if shell_error(res) == 0:
-        shell_win.insert(END, datetime.datetime.now().strftime("[%H:%M:%S]") + output.decode() + '\n','info')
+    
+def shell(cmd):
+    #res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    #output, error = res.communicate(timeout=20)
+    
+    # global shell_output
+    # global shell_error
+    # shell_output = str(output.decode())
+    # shell_error = str(error.decode())
+    # print(shell_output)
+    # print(shell_error)
+    if sys.platform == "linux":
+        res = subprocess.run(str(cmd).encode('utf-8'), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,encoding='utf-8')
     else:
-        shell_win.insert(END, datetime.datetime.now().strftime("[%H:%M:%S]") + error.decode() + '\n','error')
+        res = subprocess.run(str(cmd).encode('utf-8').split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,encoding='utf-8')
+    global shell_output
+    global shell_error
+    shell_output = str(res.stdout)
+    shell_error = str(res.stderr)
+
+def shell_win_insert(cmd):
+    shell(cmd)
+    if shell_is_error() == 0:
+        shell_win.insert(END, datetime.datetime.now().strftime("[%H:%M:%S]") + shell_output + '\n','info')
+    else:
+        shell_win.insert(END, datetime.datetime.now().strftime("[%H:%M:%S]") + shell_error + '\n','error')
     root.update()
     shell_win.see(END)
 
-def shell(cmd):
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    shell_win_insert(res)
-    return res
+# def shell_win_insert(cmd):
+#     shell_win_insert(res)
+#     return res
 def git_exist():
     if os.path.isdir(".git") == 0:
         messagebox.showwarning("错误", "还没有仓库，请新建或克隆仓库 ")
@@ -114,10 +135,9 @@ def git_create():
 
     file.close()
 
-    res = shell("git init")
-    if shell_error(res) == 0:
-        output, error = res.communicate()
-        if (output.decode().find("Reinitialized existing Git repository")) != -1:
+    res = shell_win_insert("git init")
+    if shell_is_error() == 0:
+        if (shell_output.find("Reinitialized existing Git repository")) != -1:
             messagebox.showerror("错误", "这里已经有仓库了")
         else:
             messagebox.showinfo("成功", "仓库创建成功")
@@ -129,7 +149,7 @@ def git_remove():
         return
     if messagebox.askyesno("警告！", "确定要删除仓库吗？") == False:
         return
-    res = shell("rm -rf .git")
+    res = shell_win_insert("rm -rf .git")
     messagebox.showinfo("成功", "仓库删除成功")
 
 def git_reset():
@@ -137,22 +157,21 @@ def git_reset():
         return
     if messagebox.askyesno("警告！", "确定要重置仓库吗？") == False:
         return
-    res = shell("rm -rf .git")
-    res = shell("git init")
+    res = shell_win_insert("rm -rf .git")
+    res = shell_win_insert("git init")
     messagebox.showinfo("成功", "仓库重置成功")
 
 def git_log():
     if git_exist():
         return
     cmd = 'git log'
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = res.communicate()
+    shell(cmd)
     sum = 0
-    if shell_error(res) == 1:
+    if shell_is_error() == 1:
          messagebox.showerror("错误", "查询错误")
     else:
         history = ''
-        outputs = output.decode()
+        outputs = shell_output
         while True:
             commit = ''
             result = re.search(r'commit.*\n', outputs)
@@ -212,29 +231,28 @@ def git_log():
 def git_remote_url_check():
 
     cmd = 'git remote -v'
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = res.communicate()
+    shell(cmd)
 
-    if shell_error(res) == 1:
+    if shell_is_error() == 1:
         config_url()
-    if len(output) < 2:
+    if len(shell_output) < 2:
         config_url()
         
 
 def git_add_commit_push():
     if git_exist():
         return
-    res = shell("git add .")
-    if shell_error(res) == 1:
-        output,error = res.communicate()
+    res = shell_win_insert("git add .")
+    if shell_is_error() == 1:
+        output,error = res.communicate(timeout=20)
         if error.find("warning") == -1:
             messagebox.showerror("错误", "添加失败")
             return
     commit = simpledialog.askstring(title='',prompt='输入提交注释')
     if commit  == None:
         return
-    res = shell("git commit -m" + commit)
-    if shell_error(res) == 1:
+    res = shell_win_insert("git commit -m" + commit)
+    if shell_is_error() == 1:
         messagebox.showerror("错误", "提交失败")
         return
     
@@ -244,9 +262,8 @@ def git_add_commit_push():
         return
     if len(switch) == 0:
         switch = default_branch
-    res = shell("git push origin " + switch)
-    output,error = res.communicate()
-    text = error.decode()
+    res = shell_win_insert("git push origin " + switch)
+    text = shell_error
     print(text)
     if text.find(default_branch + ' ->') != -1:
         messagebox.showinfo("成功", "推送成功")
@@ -261,17 +278,17 @@ def git_add_commit_push():
 def git_add_commit():
     if git_exist():
         return
-    res = shell("git add .")
-    if shell_error(res) == 1:
-        output,error = res.communicate()
+    res = shell_win_insert("git add .")
+    if shell_is_error() == 1:
+        output,error = res.communicate(timeout=20)
         if error.find("warning") == -1:
             messagebox.showerror("错误", "添加失败")
             return
     commit = simpledialog.askstring(title='',prompt='输入提交注释')
     if commit  == None:
         return
-    res = shell("git commit -m" + commit)
-    if shell_error(res) == 1:
+    res = shell_win_insert("git commit -m" + commit)
+    if shell_is_error() == 1:
         messagebox.showerror("错误", "提交失败")
         return
     
@@ -284,9 +301,9 @@ def git_push():
         return
     if len(switch) == 0:
         switch = default_branch
-    res = shell("git push origin " + switch)
-    output,error = res.communicate()
-    text = error.decode()
+    res = shell_win_insert("git push origin " + switch)
+
+    text = shell_error
     print(text)
     if text.find(default_branch + ' ->') != -1:
         messagebox.showinfo("成功", "推送成功")
@@ -301,9 +318,8 @@ def git_clone():
     url = simpledialog.askstring(title='',prompt='输入克隆地址')
     if url  == None:
         return
-    res = shell("git clone " + url)
-    output,error = res.communicate()
-    text = error.decode()
+    res = shell_win_insert("git clone " + url)
+    text = shell_error
     if text.find('Cloning into') != -1:
         messagebox.showinfo("成功", "克隆成功")
     else:
@@ -311,10 +327,10 @@ def git_clone():
  
     
 def git_pull():
-    res = shell("git pull")
+    res = shell_win_insert("git pull")
 
-    output,error = res.communicate()
-    text = output.decode()
+  
+    text = shell_output
     if text.find('Already up to date.') != -1:
         messagebox.showwarning("警告", "本地仓库已经是最新的")
         return
@@ -328,8 +344,8 @@ def git_back():
         return
 
     git_remote_url_check()
-    res = shell("git reset --hard HEAD~")
-    if shell_error(res) == 1:
+    res = shell_win_insert("git reset --hard HEAD~")
+    if shell_is_error() == 1:
         messagebox.showerror("错误", "回滚失败")
         return
     else:
@@ -343,8 +359,8 @@ def git_back_commit():
     git_remote_url_check()
     if commit  == None:
         return
-    res = shell("git reset --soft "+commit)
-    if shell_error(res) == 1:
+    res = shell_win_insert("git reset --soft "+commit)
+    if shell_is_error() == 1:
         messagebox.showerror("错误", "回滚失败")
         return
     else:
@@ -356,8 +372,8 @@ def start():
     shell_win.insert(END, '\n\n\n\n','logo')
     shell_win.insert(END, '欢迎使用git-python工具\n\n','welcome')
     cmd = 'git log'
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = res.communicate()
+    shell(cmd)
+
 
     if os.path.isdir(".git") == 0:
         shell_win.insert(END, '还没有仓库，请新建或克隆仓库 \n\n','T2C')
@@ -365,13 +381,13 @@ def start():
         root.update()
         return 
 
-    if shell_error(res) == 1:
+    if shell_is_error() == 1:
         shell_win.insert(END, '这里没有提交记录 \n\n','T2C')
         shell_win.insert(END, '菜单栏->推送->本地提交\n\n\n','T2C')
         root.update()
         return
     else:
-        outputs = output.decode()
+        outputs = shell_output
         commit = ''
         result = re.search(r'commit.*\n', outputs)
         if result:
@@ -461,8 +477,9 @@ def config_url():
     url = simpledialog.askstring(title='',prompt='输入远程仓库地址 (http/https/git)')
     if url == None:
         return
-    shell_error(shell("git remote rm origin "))
-    if shell_error(shell("git remote add origin " + url)) == 1:
+    shell_win_insert("git remote rm origin ")
+    shell_win_insert("git remote add origin " + url)
+    if shell_is_error() == 1:
         messagebox.showwarning("错误", "远程仓库地址配置失败")
         return
     messagebox.showinfo("成功", "远程仓库地址配置成功")
@@ -472,13 +489,15 @@ def config_user_and_mail():
     user = simpledialog.askstring(title='',prompt='输入用户名')
     if user == None:
         return
-    if shell_error(shell("git config --global user.name ") + user) == 1:
+    shell_win_insert("git config --global user.name " + user) 
+    if shell_is_error() == 1:
         messagebox.showwarning("错误", "用户名配置失败")
         return
     mail = simpledialog.askstring(title='',prompt='输入邮箱')
     if mail == None:
         return
-    if shell_error(shell("git config --global user.email ") + mail) == 1:
+    shell_win_insert("git config --global user.email " + mail)
+    if shell_is_error( ) == 1:
         messagebox.showwarning("错误", "用户名配置失败")
         return
     messagebox.showinfo("成功", "用户名配置成功")
@@ -486,9 +505,8 @@ def config_user_and_mail():
 
 def git_url():
     cmd = 'git remote -v'
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = res.communicate()
-    text = output.decode()
+    shell(cmd)
+    text = shell_output
     text = re.sub('origin', '地址: ', text)
     text = re.sub('\(fetch\)', '', text)
     text = re.sub('\(push\)', '', text)
@@ -500,14 +518,13 @@ def git_url():
 
 def git_user_mail_info():
     cmd = 'git config user.name'
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = res.communicate()
-    username = output.decode()
+    shell(cmd)
+ 
+    username = shell_output
 
     cmd = 'git config user.email'
-    res = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = res.communicate()
-    mail = output.decode()
+    shell(cmd)
+    mail = shell_output
     shell_win.insert(END,'-------------------------------------------------------\n\n','log')
     shell_win.insert(END,'用户名: ' + username,'log')
     shell_win.insert(END,'邮箱: ' + mail,'log')
