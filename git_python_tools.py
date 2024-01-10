@@ -422,7 +422,7 @@ def git_back_commit():
 
     if commit  == None:
         return
-    res = shell_win_insert("git reset --soft "+commit)
+    res = shell_win_insert("git reset --hard "+commit)
     if shell_is_error() == 1:
         messagebox.showerror("错误", "回滚失败")
         return
