@@ -15,8 +15,9 @@
 
 
 
-在源码中,有以下的配置
+> 在源码中,有以下的配置
+>
 
-`default_branch = 'master' #默认分支
-touch_gitignore_file  = True #创建仓库时,自动新建.gitignore文件
-touch_readme_file  = True #创建仓库时,自动新建readme文件`
+1. default_branch = 'master' #默认分支
+2. touch_gitignore_file  = True #创建仓库时,自动新建.gitignore文件
+3. touch_readme_file  = True #创建仓库时,自动新建readme文件
