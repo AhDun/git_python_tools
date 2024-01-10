@@ -1,7 +1,7 @@
 #coding=UTF-8
 
 #
-# Copyright (c) 2022-2023 AhDun
+# Copyright (c) 2023 AhDun
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 # 
 #  @file git_python_tools.py
 # 
-#  @brief none
+#  @brief git图形化python脚本工具
 # 
 #  @note none
 # 
@@ -472,7 +472,7 @@ def about():
     w_label0 = Label(win, height=2)
     w_label0.pack()
 
-    w_label0 = Label(win, text="git-python工具", font=("", 20))   
+    w_label0 = Label(win, text="git图形化python脚本工具", font=("", 20))   
     w_label0.pack()
 
     w_sep0 = ttk.Separator(win, orient='horizontal')
@@ -606,7 +606,7 @@ main_menu.add_cascade (label="配置", menu=confing_menu)
 
 
 
-main_menu.add_command (label="关于", command=lambda: about())
+main_menu.add_command (label="关于", command=about)
 
 
 
