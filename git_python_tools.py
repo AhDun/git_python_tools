@@ -149,14 +149,14 @@ def git_exist():
 def git_create():
 
     if touch_gitignore_file :
-        file = open('.gitignore','w+')
+        file = open('.gitignore','a+')
 
         file.write('git_python_tool.py\n')
 
         file.close()
 
     if touch_readme_file:
-        file = open('readme.md','w+')
+        file = open('readme.md','a+')
 
         file.close()
     
