@@ -28,8 +28,8 @@
 # 
 
 default_branch = 'master' #默认分支
-touch_gitignore_file  = True #创建仓库时,自动新建.gitignore文件
-touch_readme_file  = True #创建仓库时,自动新建readme文件
+touch_gitignore_file  = False #创建仓库时,自动新建.gitignore文件
+touch_readme_file  = False #创建仓库时,自动新建readme文件
 
 
 
