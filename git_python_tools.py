@@ -28,7 +28,7 @@
 # 
 
 default_branch = 'master' #默认分支
-touch_gitignore_file  = False #创建仓库时,自动新建.gitignore文件
+touch_gitignore_file  = True #创建仓库时,自动新建.gitignore文件
 touch_readme_file  = False #创建仓库时,自动新建readme文件
 
 
@@ -71,7 +71,12 @@ root.config(bg='#ffffff')
 root.geometry('800x500+300+200')
 root.resizable(0, 1)
 
+shell_win_scroll = Scrollbar()
+
+shell_win_scroll.pack(side=RIGHT, fill=Y)
 shell_win = Text(root,font=("", 10),width=800,height=500)
+shell_win.config(yscrollcommand=shell_win_scroll.set)
+shell_win_scroll.config(command=shell_win.yview)
 
 
 shell_win.tag_config('T1C',foreground="#000000", font=("", 20, "bold"),justify="center")
@@ -243,7 +248,8 @@ def git_log():
             outputs = outputs[int(result.span(0)[1]):]
             if len(outputs) < 10:
                 break
-
+    shell_win.insert(END, '\n')
+    shell_win.see(END)
     shell_win.insert(END, '\n\n\n所有提交('+str(sum)+'次提交)\n\n','T2C')
     shell_win.insert(END, history,'log')
  
@@ -265,8 +271,7 @@ def git_add_commit_push():
         return
     res = shell_win_insert("git add .")
     if shell_is_error() == 1:
-        output,error = res.communicate(timeout=20)
-        if error.find("warning") == -1:
+        if shell_error.find("warning") == -1:
             messagebox.showerror("错误", "添加失败")
             return
     commit = simpledialog.askstring(title='',prompt='输入提交注释')
@@ -302,8 +307,7 @@ def git_add_commit():
         return
     res = shell_win_insert("git add .")
     if shell_is_error() == 1:
-        output,error = res.communicate(timeout=20)
-        if error.find("warning") == -1:
+        if shell_error.find("warning") == -1:
             messagebox.showerror("错误", "添加失败")
             return
     commit = simpledialog.askstring(title='',prompt='输入提交注释')
