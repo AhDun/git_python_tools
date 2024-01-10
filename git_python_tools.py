@@ -352,16 +352,17 @@ def git_clone():
  
     
 def git_pull():
+    if git_exist():
+        return
     res = shell_win_insert("git pull")
-
-  
+    if shell_is_error() == 1:
+        messagebox.showerror("错误", "拉取失败")
+        return
     text = shell_output
     if text.find('Already up to date.') != -1:
         messagebox.showwarning("警告", "本地仓库已经是最新的")
         return
-    if text.find('Already up to date.') != -1:
-        messagebox.showwarning("警告", "本地仓库已经是最新的")
-        return
+
     
 def git_back():
 
@@ -584,8 +585,8 @@ main_menu.add_cascade (label="回滚", menu=back_menu)
 
 store_menu = Menu(main_menu, tearoff=0)
 store_menu.add_command (label="新建" ,command=git_create)
-store_menu.add_command (label="拉取",command=git_pull)
 store_menu.add_command (label="克隆" ,command=git_clone)
+store_menu.add_command (label="拉取",command=git_pull)
 store_menu.add_command (label="重置" ,command=git_reset)
 store_menu.add_command (label="删除" ,command=git_remove)
 
