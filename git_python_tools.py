@@ -155,7 +155,7 @@ def git_create():
     if touch_gitignore_file :
         file = open('.gitignore','a+')
 
-        file.write('\ngit_python_tool.py\n')
+        file.write('\ngit_python_tools.py\n')
 
         file.close()
 
@@ -274,8 +274,10 @@ def git_remote_url_check():
 
     if shell_is_error() == 1:
         config_url()
+        return
     if len(shell_output) < 2:
         config_url()
+        return
         
 
 def git_add_commit_push():
