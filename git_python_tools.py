@@ -16,7 +16,21 @@
 # limitations under the License.
 #
 
-default_branch = 'master'
+
+#
+# 
+#  @file git_python_tools.py
+# 
+#  @brief none
+# 
+#  @note none
+# 
+# 
+
+default_branch = 'master' #默认分支
+touch_gitignore_file  = True #创建仓库时,自动新建.gitignore文件
+touch_readme_file  = True #创建仓库时,自动新建readme文件
+
 
 
 import os
@@ -129,11 +143,18 @@ def git_exist():
 
 def git_create():
 
-    file = open('.gitignore','w+')
+    if touch_gitignore_file :
+        file = open('.gitignore','w+')
 
-    file.write('git_python_tool.py\n')
+        file.write('git_python_tool.py\n')
 
-    file.close()
+        file.close()
+
+    if touch_readme_file:
+        file = open('readme.md','w+')
+
+        file.close()
+    
 
     res = shell_win_insert("git init")
     if shell_is_error() == 0:
@@ -255,6 +276,8 @@ def git_add_commit_push():
     if shell_is_error() == 1:
         messagebox.showerror("错误", "提交失败")
         return
+    else:
+        messagebox.showinfo("成功", "提交成功")
     
     switch = simpledialog.askstring(title='',prompt='输入提交分支(不输入默认'+default_branch+')')
     git_remote_url_check()
@@ -272,7 +295,6 @@ def git_add_commit_push():
         messagebox.showwarning("警告", "远程仓库已是最新的")
         return
     messagebox.showerror("错误", "推送失败")
-    return
     
 
 def git_add_commit():
@@ -290,7 +312,10 @@ def git_add_commit():
     res = shell_win_insert("git commit -m" + commit)
     if shell_is_error() == 1:
         messagebox.showerror("错误", "提交失败")
-        return
+
+    else:
+        messagebox.showinfo("成功", "提交成功")
+
     
 def git_push():
     if git_exist():
@@ -370,7 +395,7 @@ def git_back_commit():
 def start():
     shell_win.insert(END, logo,'logo')
     shell_win.insert(END, '\n\n\n\n','logo')
-    shell_win.insert(END, '欢迎使用git-python工具\n\n','welcome')
+    shell_win.insert(END, '欢迎使用Git-Python工具\n\n','welcome')
     cmd = 'git log'
     shell(cmd)
 
@@ -453,7 +478,7 @@ def about():
     w_sep0.pack(fill='x', padx=10, pady=10)
 
     
-    w_label = Label(win, text="开发者: AhDun(DunHongWei)", font=("", 12))
+    w_label = Label(win, text="作者: AhDun(DunHongWei)", font=("", 12))
     w_label.pack()
 
     w_sep = ttk.Separator(win, orient='horizontal')
