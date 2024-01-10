@@ -359,13 +359,15 @@ def git_push():
     print(text)
     if text.find(default_branch + ' ->') != -1:
         messagebox.showinfo("成功", "推送成功")
+        shell_win_insert_separator('仓库推送完成')
+        return
         
     if text.find('Everything up-to-date') != -1:
         messagebox.showwarning("警告", "远程仓库已是最新的")
         return
     messagebox.showerror("错误", "推送失败")
     
-    shell_win_insert_separator('仓库推送完成')
+    
     
 def git_clone():
     shell_win_insert_separator('开始克隆仓库')
