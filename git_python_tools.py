@@ -29,7 +29,7 @@
 
 default_branch = 'master' #默认分支
 touch_gitignore_file  = True #创建仓库时,自动新建.gitignore文件
-touch_readme_file  = False #创建仓库时,自动新建readme文件
+touch_readme_file  = True #创建仓库时,自动新建readme文件
 
 
 
@@ -303,6 +303,8 @@ def git_add_commit_push():
         return
     if len(switch) == 0:
         switch = default_branch
+        
+    shell_win_insert_separator('开始仓库推送')
     res = shell_win_insert("git push origin " + switch)
     text = shell_error
     print(text)
