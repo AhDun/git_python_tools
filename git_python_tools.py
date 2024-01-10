@@ -404,7 +404,7 @@ def git_back():
     if messagebox.askyesno("警告！", "确定要回滚到上次提交点吗？") == False:
         return
 
-    git_remote_url_check()
+
     res = shell_win_insert("git reset --hard HEAD~")
     if shell_is_error() == 1:
         messagebox.showerror("错误", "回滚失败")
@@ -419,7 +419,7 @@ def git_back_commit():
     if messagebox.askyesno("警告！", "确定要回滚指定提交点吗？") == False:
         return
     commit = simpledialog.askstring(title='',prompt='输入提交的节点值')
-    git_remote_url_check()
+
     if commit  == None:
         return
     res = shell_win_insert("git reset --soft "+commit)
