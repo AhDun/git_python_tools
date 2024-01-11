@@ -2,7 +2,7 @@
 
 
 
-![readme](./readme.jpg)
+![readme](./readme.png)
 
 
 

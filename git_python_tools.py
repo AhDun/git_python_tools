@@ -510,7 +510,7 @@ def about():
     w_label0 = Label(win, height=2)
     w_label0.pack()
 
-    w_label0 = Label(win, text="git图形化python脚本工具", font=("", 20))   
+    w_label0 = Label(win, text="Git图形化Python脚本工具", font=("", 20))   
     w_label0.pack()
 
     w_sep0 = ttk.Separator(win, orient='horizontal')
