@@ -156,7 +156,7 @@ def git_create():
     shell_win_insert_separator('开始新建仓库')
 
     if touch_readme_file:
-        file = open('readme.md','a+')
+        file = open('readme.md','a')
 
         file.close()
     
@@ -177,26 +177,28 @@ def git_create():
 def git_status():
     if git_exist():
         return
-    shell('git config --global core.quotepath false')
-    shell('git status')
-    if shell_is_error() == 1:
-         messagebox.showerror("错误", "查询本地提交记录错误")
-    else:
-        shell_win.insert(END, '\n')
-        shell_win.see(END)
-        shell_win.insert(END, '--------------------目前本地提交记录--------------------\n','T2CG')
-        shell_win.insert(END, '(*后缀表示新文件)\n','T3C')
-        outputs = shell_output
-        line = outputs.split('\n')
-        for str in line:
-            if str.find("Changes to be committed:") != -1:
-                shell_win.insert(END, "\n新发生的更改\n",'log')
-            if str.find("Changes not staged for commit:") != -1:
-                shell_win.insert(END, "\n已暂存未提交的更改\n",'log')
-            if str.find("modified:") != -1:
-                shell_win.insert(END, str.replace("modified:","")+ ' \n','T3C')
-            if str.find("new file:") != -1:
-                shell_win.insert(END, str.replace("new file:","")+ ' *\n','T3C')
+    shell_win.insert(END, '--------------------目前本地提交记录--------------------\n','T2CG')
+    shell_win_insert('git status')
+    # shell('git config --global core.quotepath false')
+    # shell('git status')
+    # if shell_is_error() == 1:
+    #      messagebox.showerror("错误", "查询本地提交记录错误")
+    # else:
+    #     shell_win.insert(END, '\n')
+    #     shell_win.see(END)
+    #     shell_win.insert(END, '--------------------目前本地提交记录--------------------\n','T2CG')
+    #     shell_win.insert(END, '(*后缀表示新文件)\n','T3C')
+    #     outputs = shell_output
+    #     line = outputs.split('\n')
+    #     for str in line:
+    #         if str.find("Changes to be committed:") != -1:
+    #             shell_win.insert(END, "\n新发生的更改\n",'log')
+    #         if str.find("Changes not staged for commit:") != -1:
+    #             shell_win.insert(END, "\n已暂存未提交的更改\n",'log')
+    #         if str.find("modified:") != -1:
+    #             shell_win.insert(END, str.replace("modified:","")+ ' \n','T3C')
+    #         if str.find("new file:") != -1:
+    #             shell_win.insert(END, str.replace("new file:","")+ ' *\n','T3C')
 
 
     return
@@ -204,26 +206,28 @@ def git_status():
 def git_status_add_commit():
     if git_exist():
         return
-    shell('git config --global core.quotepath false')
-    shell('git status')
-    if shell_is_error() == 1:
-         messagebox.showerror("错误", "查询变化错误")
-    else:
-        shell_win.insert(END, '\n')
-        shell_win.see(END)
-        shell_win.insert(END, '--------------------提交变化参考--------------------\n','T2CG')
-        shell_win.insert(END, '(*后缀表示新文件)\n','T3C')
-        outputs = shell_output
-        line = outputs.split('\n')
-        for str in line:
-            if str.find("Changes to be committed:") != -1:
-                shell_win.insert(END, "\n新发生的更改\n",'T3C')
-            if str.find("Changes not staged for commit:") != -1:
-                shell_win.insert(END, "\n已暂存未提交的更改\n",'T3C')
-            if str.find("modified:") != -1:
-                shell_win.insert(END, str.replace("modified:","")+ ' \n','T3C')
-            if str.find("new file:") != -1:
-                shell_win.insert(END, str.replace("new file:","")+ ' *\n','T3C')
+    shell_win.insert(END, '--------------------提交变化参考--------------------\n','T2CG')
+    shell_win_insert('git status')
+    # shell('git config --global core.quotepath false')
+    # shell('git status')
+    # if shell_is_error() == 1:
+    #      messagebox.showerror("错误", "查询变化错误")
+    # else:
+    #     shell_win.insert(END, '\n')
+    #     shell_win.see(END)
+    #     shell_win.insert(END, '--------------------提交变化参考--------------------\n','T2CG')
+    #     shell_win.insert(END, '(*后缀表示新文件)\n','T3C')
+    #     outputs = shell_output
+    #     line = outputs.split('\n')
+    #     for str in line:
+    #         if str.find("Changes to be committed:") != -1:
+    #             shell_win.insert(END, "\n新发生的更改\n",'T3C')
+    #         if str.find("Changes not staged for commit:") != -1:
+    #             shell_win.insert(END, "\n已暂存未提交的更改\n",'T3C')
+    #         if str.find("modified:") != -1:
+    #             shell_win.insert(END, str.replace("modified:","")+ ' \n','T3C')
+    #         if str.find("new file:") != -1:
+    #             shell_win.insert(END, str.replace("new file:","")+ ' *\n','T3C')
 
     return
 
@@ -352,19 +356,25 @@ def git_add_commit_push():
     
 
 def git_add_commit():
-    git_status_add_commit()
-    shell_win_insert_separator('开始仓库提交')
     if git_exist():
         return
-    filer = open('.gitignore','w+')
-    str = filer.read()
-    filer.close()
-    filew = open('.gitignore','a+')
-    if str.find("git_python_tools.pyw") == -1:
+    git_status_add_commit()
+    shell_win_insert_separator('开始仓库提交')
+    if os.path.isfile('.gitignore'):
+        filer = open('.gitignore','r')
+        str = filer.read()
+        filer.close()
+        filew = open('.gitignore','a')
+        if str.find("git_python_tools.pyw") == -1:
+            filew.write('\ngit_python_tools.pyw')
+        if str.find("git_python_tools.exe") == -1:
+            filew.write('\ngit_python_tools.exe')
+        filew.close()
+    else:
+        filew = open('.gitignore','a')
         filew.write('\ngit_python_tools.pyw')
-    if str.find("git_python_tools.exe") == -1:
         filew.write('\ngit_python_tools.exe')
-    filew.close()
+        filew.close()
 
     res = shell_win_insert("git add .")
     if shell_is_error() == 1:
@@ -383,14 +393,14 @@ def git_add_commit():
     shell_win_insert_separator('仓库提交完成')
 
 def ungit_add_commit():
-    shell_win_insert_separator('开始取消仓库提交')
+    shell_win_insert_separator('开始撤回本地提交')
     if git_exist():
         return
     res = shell_win_insert("git reset HEAD~")
     if shell_is_error() == 1:
-        messagebox.showerror("错误", "取消失败")
+        messagebox.showerror("错误", "'撤回失败")
         return
-    shell_win_insert_separator('取消仓库提交完成')
+    shell_win_insert_separator('撤回本地提交完成')
 
     
 def git_push():
@@ -447,7 +457,11 @@ def git_clone():
     shell_win_insert_separator('克隆仓库完成')
     if python_copy_to_repository == False:
         return
-    if not os.path.isfile(os.getcwd()+dirname+os.path.basename(__file__)):
+    path = os.getcwd()+dirname+'/'+os.path.basename(__file__)
+    if sys.platform == "win32":
+        path = path.replace('/','\\')
+    if not os.path.isfile(path):
+            shell_win_insert_separator('自动复制脚本到克隆仓库中')
             shutil.copy(__file__, os.getcwd()+dirname)
     
  
@@ -480,9 +494,6 @@ def git_pull():
         switch = default_branch
     shell_win_insert("git pull origin " + switch)
     if shell_is_error() == 1:
-        if shell_error.find("error: Your local changes to the following files would be overwritten by merge") != -1:
-            messagebox.showerror("严重警告", "严重警告：请在拉取前先本地提交,否则本地文件将会被覆盖掉！！！")
-            return
         messagebox.showerror("错误", "拉取失败")
         return
     if shell_output.find('Already up to date.') != -1:
@@ -619,7 +630,7 @@ def about():
     w_sep = ttk.Separator(win, orient='horizontal')
     w_sep.pack(fill='x', padx=10, pady=10)
 
-    w_label1 = Label(win, text="版本:v1.2(2024-4-10)", font=("", 12))
+    w_label1 = Label(win, text="版本:v1.5(2024-4-12)", font=("", 12))
     w_label1.pack()
 
     w_sep1 = ttk.Separator(win, orient='horizontal')
@@ -750,8 +761,8 @@ main_menu.add_cascade (label="回滚", menu=back_menu)
 
 
 query_menu = Menu(main_menu, tearoff=0)
-query_menu.add_command (label="本地提交记录",command=git_status)
 query_menu.add_command (label="历史提交记录",command=git_log)
+query_menu.add_command (label="本地提交记录",command=git_status)
 query_menu.add_command (label="仓库地址",command=git_url)
 query_menu.add_command (label="用户名和邮箱",command=git_user_mail_info)
 main_menu.add_cascade (label="查询", menu=query_menu)
